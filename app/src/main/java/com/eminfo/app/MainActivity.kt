@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.eminfo.app.presentation.screens.ContactsScreen
 import com.eminfo.app.presentation.screens.ProfileScreen
+import com.eminfo.app.presentation.screens.QRCodeScreen
 import com.eminfo.app.ui.theme.EmergencyInfoTheme
 
 class MainActivity : ComponentActivity() {
@@ -34,9 +35,13 @@ fun EmergencyInfoApp() {
 
     when (currentScreen) {
         "profile" -> ProfileScreen(
-            onNavigateToContacts = { currentScreen = "contacts" }
+            onNavigateToContacts = { currentScreen = "contacts" },
+            onNavigateToQR = { currentScreen = "qr" }
         )
         "contacts" -> ContactsScreen(
+            onNavigateBack = { currentScreen = "profile" }
+        )
+        "qr" -> QRCodeScreen(
             onNavigateBack = { currentScreen = "profile" }
         )
     }
