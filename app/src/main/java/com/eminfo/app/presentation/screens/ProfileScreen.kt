@@ -31,7 +31,8 @@ import com.eminfo.app.presentation.viewmodel.SaveStatus
 fun ProfileScreen(
     viewModel: ProfileViewModel = viewModel(),
     onNavigateToContacts: () -> Unit = {},
-    onNavigateToQR: () -> Unit = {}
+    onNavigateToQR: () -> Unit = {},
+    onNavigateToWidget: () -> Unit = {}
 ) {
     val profile by viewModel.profileState.collectAsState()
     val saveStatus by viewModel.saveStatus.collectAsState()
@@ -57,7 +58,7 @@ fun ProfileScreen(
     }
 
     Scaffold(
-        topBar = {   ModernTopBar(onNavigateToContacts, onNavigateToQR) },
+        topBar = {     ModernTopBar(onNavigateToContacts, onNavigateToQR, onNavigateToWidget) },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = Color(0xFFF5F7FA)
     ) { paddingValues ->
@@ -240,7 +241,8 @@ fun ProfileScreen(
 @Composable
 fun ModernTopBar(
     onNavigateToContacts: () -> Unit,
-    onNavigateToQR: () -> Unit = {}
+    onNavigateToQR: () -> Unit = {},
+    onNavigateToWidget: () -> Unit = {}
 ) {
     Box(
         modifier = Modifier
@@ -266,6 +268,21 @@ fun ModernTopBar(
                 containerColor = Color.Transparent
             ),
             actions = {
+                IconButton(
+                    onClick = onNavigateToWidget,
+                    modifier = Modifier
+                        .padding(end = 8.dp)
+                        .background(
+                            color = Color.White.copy(alpha = 0.2f),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                ) {
+                    Icon(
+                        Icons.Default.Widgets,
+                        contentDescription = "Widget",
+                        tint = Color.White
+                    )
+                }
                 IconButton(
                     onClick = onNavigateToQR,
                     modifier = Modifier

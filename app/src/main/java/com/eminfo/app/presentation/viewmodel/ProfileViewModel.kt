@@ -86,6 +86,16 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
             try {
                 _saveStatus.value = SaveStatus.Saving
                 repository.saveProfile(profile.copy(lastUpdated = System.currentTimeMillis()))
+
+                // Update widget
+                try {
+                    com.eminfo.app.widget.EmergencyWidget.updateWidget(
+                        getApplication<Application>().applicationContext
+                    )
+                } catch (e: Exception) {
+                    // Widget update failed, but profile saved successfully
+                }
+
                 _saveStatus.value = SaveStatus.Success
 
                 // Reset to idle after 2 seconds

@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Eminfo</string>
+    <string name="widget_description">Emergency information for first responders</string>
 </resources>

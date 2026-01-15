@@ -151,6 +151,15 @@ class ContactsViewModel(application: Application) : AndroidViewModel(application
                     repository.insertContact(contact)
                 }
 
+                // Update widget
+                try {
+                    com.eminfo.app.widget.EmergencyWidget.updateWidget(
+                        getApplication<Application>().applicationContext
+                    )
+                } catch (e: Exception) {
+                    // Widget update failed, but contact saved successfully
+                }
+
                 _saveStatus.value = ContactSaveStatus.Success
                 kotlinx.coroutines.delay(500)
                 hideDialog()
