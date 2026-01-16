@@ -57,6 +57,16 @@ class EmergencyWidget : AppWidgetProvider() {
                     withContext(Dispatchers.Main) {
                         val views = RemoteViews(context.packageName, R.layout.emergency_widget)
 
+                        // Set up intent to open the app when widget is clicked
+                        val appIntent = Intent(context, com.eminfo.app.MainActivity::class.java)
+                        val appPendingIntent = PendingIntent.getActivity(
+                            context,
+                            1, // Use a different request code than call button
+                            appIntent,
+                            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                        )
+                        views.setOnClickPendingIntent(R.id.widget_root, appPendingIntent)
+
                         // Set profile data
                         views.setTextViewText(
                             R.id.widget_name,

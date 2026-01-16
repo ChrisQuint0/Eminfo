@@ -183,13 +183,13 @@ fun WidgetSetupScreen(
 
                     FeatureItem(
                         icon = Icons.Default.Person,
-                        title = "Your Name & Blood Type",
+                        title = "Your Name",
                         color = Color(0xFF007AFF)
                     )
 
                     FeatureItem(
                         icon = Icons.Default.Warning,
-                        title = "Allergies & Medical Conditions",
+                        title = "Medical Conditions, Allergies, and Medications",
                         color = Color(0xFFDC3545)
                     )
 
