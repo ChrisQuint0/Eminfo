@@ -1,5 +1,6 @@
 package com.eminfo.app
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -8,10 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import com.eminfo.app.presentation.screens.ContactsScreen
-import com.eminfo.app.presentation.screens.ProfileScreen
-import com.eminfo.app.presentation.screens.QRCodeScreen
-import com.eminfo.app.presentation.screens.WidgetSetupScreen
+import com.eminfo.app.presentation.screens.*
 import com.eminfo.app.ui.theme.EmergencyInfoTheme
 
 class MainActivity : ComponentActivity() {
@@ -32,22 +30,40 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun EmergencyInfoApp() {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+    var hasSeenOnboarding by remember {
+        mutableStateOf(prefs.getBoolean("has_seen_onboarding", false))
+    }
     var currentScreen by remember { mutableStateOf("profile") }
 
-    when (currentScreen) {
-        "profile" -> ProfileScreen(
-            onNavigateToContacts = { currentScreen = "contacts" },
-            onNavigateToQR = { currentScreen = "qr" },
-            onNavigateToWidget = { currentScreen = "widget" }
+    if (!hasSeenOnboarding) {
+        OnboardingScreen(
+            onComplete = {
+                prefs.edit().putBoolean("has_seen_onboarding", true).apply()
+                hasSeenOnboarding = true
+            }
         )
-        "contacts" -> ContactsScreen(
-            onNavigateBack = { currentScreen = "profile" }
-        )
-        "qr" -> QRCodeScreen(
-            onNavigateBack = { currentScreen = "profile" }
-        )
-        "widget" -> WidgetSetupScreen(
-            onNavigateBack = { currentScreen = "profile" }
-        )
+    } else {
+        when (currentScreen) {
+            "profile" -> ProfileScreen(
+                onNavigateToContacts = { currentScreen = "contacts" },
+                onNavigateToQR = { currentScreen = "qr" },
+                onNavigateToWidget = { currentScreen = "widget" },
+                onNavigateToSettings = { currentScreen = "settings" }
+            )
+            "contacts" -> ContactsScreen(
+                onNavigateBack = { currentScreen = "profile" }
+            )
+            "qr" -> QRCodeScreen(
+                onNavigateBack = { currentScreen = "profile" }
+            )
+            "widget" -> WidgetSetupScreen(
+                onNavigateBack = { currentScreen = "profile" }
+            )
+            "settings" -> SettingsScreen(
+                onNavigateBack = { currentScreen = "profile" }
+            )
+        }
     }
 }

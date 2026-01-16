@@ -1,6 +1,5 @@
 package com.eminfo.app.presentation.screens
 
-import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -14,7 +13,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -25,6 +23,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.eminfo.app.presentation.viewmodel.ProfileField
 import com.eminfo.app.presentation.viewmodel.ProfileViewModel
 import com.eminfo.app.presentation.viewmodel.SaveStatus
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.res.painterResource
+import androidx.core.content.ContextCompat
+import com.eminfo.app.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,18 +38,40 @@ fun ProfileScreen(
     viewModel: ProfileViewModel = viewModel(),
     onNavigateToContacts: () -> Unit = {},
     onNavigateToQR: () -> Unit = {},
-    onNavigateToWidget: () -> Unit = {}
+    onNavigateToWidget: () -> Unit = {},
+    onNavigateToSettings: () -> Unit = {}
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     val profile by viewModel.profileState.collectAsState()
     val saveStatus by viewModel.saveStatus.collectAsState()
     val validationErrors by viewModel.validationErrors.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    // Permission launcher
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            // Permission granted
+        } else {
+            // Permission denied - widget will still work but will open dialer instead
+        }
+    }
+
     LaunchedEffect(saveStatus) {
+        val hasPermission = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.CALL_PHONE
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (!hasPermission) {
+            permissionLauncher.launch(Manifest.permission.CALL_PHONE)
+        }
+
         when (saveStatus) {
             is SaveStatus.Success -> {
                 snackbarHostState.showSnackbar(
-                    message = "✓ Profile saved successfully!",
+                    message = "Profile saved successfully!",
                     duration = SnackbarDuration.Short
                 )
             }
@@ -58,7 +86,12 @@ fun ProfileScreen(
     }
 
     Scaffold(
-        topBar = {     ModernTopBar(onNavigateToContacts, onNavigateToQR, onNavigateToWidget) },
+        topBar = {     ModernTopBar(
+            onNavigateToContacts,
+            onNavigateToQR,
+            onNavigateToWidget,
+            onNavigateToSettings
+        ) },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = Color(0xFFF5F7FA)
     ) { paddingValues ->
@@ -177,7 +210,7 @@ fun ProfileScreen(
                         onValueChange = { viewModel.updateField(ProfileField.PHYSICIAN_PHONE, it) },
                         label = "Physician Phone",
                         icon = Icons.Filled.Phone,
-                        placeholder = "(555) 123-4567",
+                        placeholder = "09123456789",
                         errorMessage = validationErrors[ProfileField.PHYSICIAN_PHONE.name]
                     )
                 }
@@ -242,7 +275,8 @@ fun ProfileScreen(
 fun ModernTopBar(
     onNavigateToContacts: () -> Unit,
     onNavigateToQR: () -> Unit = {},
-    onNavigateToWidget: () -> Unit = {}
+    onNavigateToWidget: () -> Unit = {},
+    onNavigateToSettings: () -> Unit = {}
 ) {
     Box(
         modifier = Modifier
@@ -258,10 +292,11 @@ fun ModernTopBar(
     ) {
         TopAppBar(
             title = {
-                Text(
-                    "Emergency Profile",
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
+                Icon(
+                    painter = painterResource(id = R.drawable.eminfo_logo_w),
+                    contentDescription = "App Logo",
+                    tint = Color.Unspecified,
+                    modifier = Modifier.size(48.dp)
                 )
             },
             colors = TopAppBarDefaults.topAppBarColors(
@@ -269,7 +304,7 @@ fun ModernTopBar(
             ),
             actions = {
                 IconButton(
-                    onClick = onNavigateToWidget,
+                    onClick = onNavigateToContacts,
                     modifier = Modifier
                         .padding(end = 8.dp)
                         .background(
@@ -278,8 +313,8 @@ fun ModernTopBar(
                         )
                 ) {
                     Icon(
-                        Icons.Default.Widgets,
-                        contentDescription = "Widget",
+                        Icons.Default.Group,
+                        contentDescription = "Contacts",
                         tint = Color.White
                     )
                 }
@@ -299,7 +334,7 @@ fun ModernTopBar(
                     )
                 }
                 IconButton(
-                    onClick = onNavigateToContacts,
+                    onClick = onNavigateToWidget,
                     modifier = Modifier
                         .padding(end = 8.dp)
                         .background(
@@ -308,8 +343,23 @@ fun ModernTopBar(
                         )
                 ) {
                     Icon(
-                        Icons.Default.Group,
-                        contentDescription = "Contacts",
+                        Icons.Default.Widgets,
+                        contentDescription = "Widget",
+                        tint = Color.White
+                    )
+                }
+                IconButton(
+                    onClick = onNavigateToSettings,
+                    modifier = Modifier
+                        .padding(end = 8.dp)
+                        .background(
+                            color = Color.White.copy(alpha = 0.2f),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                ) {
+                    Icon(
+                        Icons.Default.Settings,
+                        contentDescription = "Settings",
                         tint = Color.White
                     )
                 }

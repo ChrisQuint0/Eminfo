@@ -88,5 +88,9 @@ dependencies {
     // Encryption (for backup)
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
 
+    // Pager for onboarding
+    implementation("com.google.accompanist:accompanist-pager:0.32.0")
+    implementation("com.google.accompanist:accompanist-pager-indicators:0.32.0")
+
 
 }

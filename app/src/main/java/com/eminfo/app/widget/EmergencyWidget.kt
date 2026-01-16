@@ -63,29 +63,51 @@ class EmergencyWidget : AppWidgetProvider() {
                             profile?.fullName?.takeIf { it.isNotBlank() } ?: "Name Not Set"
                         )
 
-                        views.setTextViewText(
-                            R.id.widget_blood_type,
-                            profile?.bloodType?.takeIf { it.isNotBlank() } ?: "Not Set"
-                        )
+                        // Combine conditions and allergies
+                        val conditionsAndAllergies = buildString {
+                            val conditions = profile?.medicalConditions?.takeIf { it.isNotBlank() }
+                            val allergies = profile?.allergies?.takeIf { it.isNotBlank() }
+
+                            if (conditions != null && allergies != null) {
+                                append(conditions)
+                                append(" • ")
+                                append(allergies)
+                            } else if (conditions != null) {
+                                append(conditions)
+                            } else if (allergies != null) {
+                                append(allergies)
+                            } else {
+                                append("None listed")
+                            }
+                        }
 
                         views.setTextViewText(
-                            R.id.widget_allergies,
-                            profile?.allergies?.takeIf { it.isNotBlank() } ?: "None listed"
+                            R.id.widget_conditions_allergies,
+                            conditionsAndAllergies
                         )
 
-                        // Set contact data
+                        // Set medications
+                        views.setTextViewText(
+                            R.id.widget_medications,
+                            profile?.currentMedications?.takeIf { it.isNotBlank() } ?: "None listed"
+                        )
+
+                        // Set emergency contact in format: EMERGENCY CONTACT: 0912345678 (MOTHER)
                         if (primaryContact != null) {
+                            val contactText = "EMERGENCY CONTACT: ${primaryContact.phoneNumber} (${primaryContact.relationship.uppercase()})"
                             views.setTextViewText(
-                                R.id.widget_contact_name,
-                                "${primaryContact.name} (${primaryContact.relationship})"
+                                R.id.widget_emergency_contact,
+                                contactText
                             )
+
+                            // Update button text with contact name
                             views.setTextViewText(
-                                R.id.widget_contact_phone,
-                                primaryContact.phoneNumber
+                                R.id.widget_call_button,
+                                "Call ${primaryContact.name}"
                             )
 
                             // Set up call button
-                            val callIntent = Intent(Intent.ACTION_DIAL).apply {
+                            val callIntent = Intent(Intent.ACTION_CALL).apply {
                                 data = Uri.parse("tel:${primaryContact.phoneNumber}")
                             }
                             val callPendingIntent = PendingIntent.getActivity(
@@ -96,8 +118,14 @@ class EmergencyWidget : AppWidgetProvider() {
                             )
                             views.setOnClickPendingIntent(R.id.widget_call_button, callPendingIntent)
                         } else {
-                            views.setTextViewText(R.id.widget_contact_name, "No Primary Contact Set")
-                            views.setTextViewText(R.id.widget_contact_phone, "")
+                            views.setTextViewText(
+                                R.id.widget_emergency_contact,
+                                "EMERGENCY CONTACT: Not Set"
+                            )
+                            views.setTextViewText(
+                                R.id.widget_call_button,
+                                "Call Emergency Contact"
+                            )
                         }
 
                         appWidgetManager.updateAppWidget(appWidgetId, views)

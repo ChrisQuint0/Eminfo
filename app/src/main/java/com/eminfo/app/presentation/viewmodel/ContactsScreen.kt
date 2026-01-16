@@ -509,7 +509,7 @@ fun AddEditContactDialog(viewModel: ContactsViewModel) {
                     onValueChange = { viewModel.updatePhoneNumber(it) },
                     label = { Text("Phone Number *") },
                     leadingIcon = { Icon(Icons.Default.Phone, null) },
-                    placeholder = { Text("(555) 123-4567") },
+                    placeholder = { Text("09123456789") },
                     isError = validationErrors.containsKey("phone"),
                     supportingText = validationErrors["phone"]?.let { { Text(it) } },
                     modifier = Modifier.fillMaxWidth(),
