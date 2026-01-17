@@ -2,6 +2,8 @@
 
 **Eminfo** is an offline-first Android application designed to provide first responders with instant access to critical medical and contact information. Built with modern Android technologies, it prioritizes speed, privacy, and accessibility, ensuring that life-saving data is available when it matters most—even without an internet connection.
 
+![App Preview](App-Preview.png)
+
 ## Key Features
 
 *   **Offline Storage**: All data is stored locally on the device using [Room Database](https://developer.android.com/training/data-storage/room). No internet connection is required, ensuring reliability in remote areas and total user privacy.
